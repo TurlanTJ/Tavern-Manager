@@ -116,12 +116,13 @@ public class CharGroup : MonoBehaviour
 
         foreach(GameObject member in groupMembers)
         {
+            ICharacter c = member.GetComponent<ICharacter>();
             // if group member is the one who ordered s/he start eating
-            if(member.GetComponent<ICharacter>().expectingMeal.itemData != order.itemData)
+            if(c.expectingMeal.itemData != order.itemData && !c.recievedMeal)
                 continue;
             else
             {
-                if(member.GetComponent<ICharacter>().recievedMeal)
+                if(c.recievedMeal)
                     continue;
 
                 StartCoroutine(member.GetComponent<ICharacter>().StartConsuming());
@@ -136,7 +137,7 @@ public class CharGroup : MonoBehaviour
         while(needToSearchTable)
         {
             bool foundTable = false;
-            table = tableManager.FindUnoccupiedTable(out foundTable, decidedGroupNumber); // get availablt table
+            table = tableManager.FindUnoccupiedTable(out foundTable, decidedGroupNumber, this.gameObject.transform.position); // get availablt table
 
             if(!foundTable)
             {

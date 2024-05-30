@@ -16,7 +16,7 @@ public class UICookingManager : MonoBehaviour
 
     private CookingManager cookingManager;
 
-    void Start()
+    void Awake()
     {
         cookingManager = CookingManager.instance;
         availableRecipes = cookingManager.GetAvailableRecipes();

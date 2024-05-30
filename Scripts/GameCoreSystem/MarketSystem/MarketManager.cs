@@ -138,7 +138,7 @@ public class MarketManager : MonoBehaviour
 
         int totalCost = 0;
         foreach(Item cartItem in cartItems)
-            totalCost += cartItem.itemData.itemPrice;
+            totalCost += cartItem.itemData.itemPrice * cartItem.currentCount;
 
         if(!inventoryManager.CanAfford(totalCost))
             Debug.Log("Not Enough Money");

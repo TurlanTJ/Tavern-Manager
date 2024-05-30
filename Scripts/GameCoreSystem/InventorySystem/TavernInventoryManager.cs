@@ -23,12 +23,15 @@ public class TavernInventoryManager : MonoBehaviour
     public delegate void OnInventoryOpened();
     public OnInventoryOpened onInventoryOpened;
 
-    public int money = 5000;
+    public delegate void OnMoneyChanged(int currentCash);
+    public OnMoneyChanged onMoneyChanged;
 
-    void Update()
+    public int money = 0;
+    public int maxMoney = 999999;
+
+    void Start()
     {
-        if(Input.GetKeyDown(KeyCode.X)) // all available items to inventory
-            AddAllItems();
+        UpdateMoney(5000); // set money
     }
 
     public List<ItemSO> GetAllItems()
@@ -49,17 +52,13 @@ public class TavernInventoryManager : MonoBehaviour
 
     public void AddAllItems()
     {
-        money = 999999; // set money
         foreach(ItemSO itemData in allItems)
         {   // check if item exists in the stored items list
-            bool itemExists = false;
             foreach(Item item in storedItems)
             {
                 if(item.itemData == itemData)
-                    itemExists = true;
+                    continue;
             }
-            if(itemExists)
-                continue;
 
             Item addedItem = new Item(itemData, true); 
             storedItems.Add(addedItem); // add all items in the game to stored items list
@@ -122,8 +121,8 @@ public class TavernInventoryManager : MonoBehaviour
 
         for(var i = 0; i < storedItems.Count; i++)
         {
-            if(storedItems[i].itemData != item.itemData)
-                continue;
+            if(storedItems[i].itemData != item.itemData)    // if current iterated item is NOT the same as the given item,
+                continue;                                   // move to the next item in the list
 
             itemIndex = i; // if item exists, default index changed to relevant one
         }
@@ -140,12 +139,12 @@ public class TavernInventoryManager : MonoBehaviour
         PlayerManager playerManager = FindObjectOfType(typeof(PlayerManager)) as PlayerManager;
         Item newItem = new Item(item.itemData); // initialize new item, and spawn visual object of it
         newItem.SpawnItemPrefab(playerManager.carryPos.transform);
-        if(playerManager.CarryItem(newItem.itemPref)) // try to add it to player carrying list
+        if(playerManager.CarryItem(newItem.itemPref))   // try to add it to player carrying list
         {                                               // in case of success, reduce the stored item count
-            item.currentCount--;                        // if the number becomes less or equal to 0, remove from storage
+            item.currentCount--;                        // if the number becomes less than or equal to 0, remove it from storage
             if(item.currentCount <= 0)
                 RemoveItem(item);
-            else
+            else                                        // else update the current count
                 UpdateItem(item);
         }
         else
@@ -174,5 +173,9 @@ public class TavernInventoryManager : MonoBehaviour
     public void UpdateMoney(int difference) // update the current cash
     {
         money += difference;
+        if(money >= maxMoney)
+            money = maxMoney;
+
+        onMoneyChanged?.Invoke(money);
     }
 }

@@ -16,8 +16,8 @@ public class Table : Interactable
     private bool isAddedToList = false;
 
     [SerializeField] private List<GameObject> chairs = new List<GameObject>();
-    private List<bool> chairSts = new List<bool>();
-    private List<GameObject> availableChairs = new List<GameObject>();
+    [SerializeField] private List<bool> chairSts = new List<bool>();
+    [SerializeField] private List<GameObject> availableChairs = new List<GameObject>();
 
     void Start()
     {
@@ -26,13 +26,13 @@ public class Table : Interactable
 
         // init chair statuses
         var i = 0;
-        while(i < tableCap)
+        while(i < tableCap) // initializing table statuses
         {
             chairSts.Add(true);
             i++;
         }
 
-        availableChairs = chairs;
+        availableChairs.AddRange(chairs); // adding available tables from all chairs list
     }
 
     void Update()
@@ -51,10 +51,7 @@ public class Table : Interactable
         }
     }
 
-    public override void Interact()
-    {
-
-    }
+    public override void Interact(){}
 
     // Deliver the ordered meal to table
     public override void Interact(Item item, int itemIdx)
@@ -94,7 +91,7 @@ public class Table : Interactable
         int randomChair = UnityEngine.Random.Range(0, availableChairs.Count); 
 
         // if chair is Unoccupied customer is sits there, else functions calls itself until char finds a chair
-        if(availableChairs[randomChair]) 
+        if(availableChairs[randomChair] && randomChair < tableCap)
         {
             customer.gameObject.transform.position = availableChairs[randomChair].transform.position;
             availableChairs.Remove(availableChairs[randomChair]);
@@ -106,12 +103,13 @@ public class Table : Interactable
 
     public void ResetChairs()
     {
-        availableChairs = chairs;
+        availableChairs.Clear();
+        availableChairs.AddRange(chairs);
         var i = 0;
-        while(i < availableChairs.Count)
+        while(i < tableCap)
         {
-            i++;
             chairSts[i] = true;
+            i++;
         }
     }
 }

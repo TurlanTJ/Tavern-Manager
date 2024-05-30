@@ -37,15 +37,19 @@ public class MapManager : MonoBehaviour
 
     public Grid _grid;
 
+    public bool isTutorialEnabled = false;
+
     public delegate void OnWorkTimeEnded();
     public OnWorkTimeEnded onWorkTimeEnded;
+    public delegate void OnWorkTimeUpdated(float progress);
+    public OnWorkTimeUpdated onWorkTimeUpdated;
+    public delegate void OnTutorialStatusChanged(bool status);
+    public OnTutorialStatusChanged onTutorialStatusChanged;
 
     private CustomerManager customerManager;
 
     void Start()
     {
-        InitMap();
-
         _isFreeTime = true;
         _isWorkTime = false;
         _currentTime = _workTime;
@@ -57,6 +61,12 @@ public class MapManager : MonoBehaviour
 
     void Update()
     {
+        if(Input.GetKeyDown(KeyCode.T))
+            EnableTutorial(!isTutorialEnabled);
+
+        if(isTutorialEnabled)
+            return;
+
         if(Input.GetKeyDown(KeyCode.Space))
         {
             if(_isFreeTime)
@@ -64,11 +74,10 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void InitMap() // initialize map
+    public void EnableTutorial(bool sts) // enable/disable tutorial panels
     {
-        int gridSize = 50;
-
-        _grid = new Grid(gridSize, gridSize, 1f, new Vector3(-gridSize/2, -gridSize/2, 0f));
+        isTutorialEnabled = sts;
+        onTutorialStatusChanged?.Invoke(isTutorialEnabled);
     }
 
     private IEnumerator SpawnCharacter()
@@ -93,6 +102,8 @@ public class MapManager : MonoBehaviour
     {
         while(_isWorkTime)
         {
+            onWorkTimeUpdated?.Invoke(_currentTime / _workTime); // calculate the current work time left and update the clock UI
+
             yield return new WaitForSeconds(1f); // wait for 1 sec
 
             _currentTime -= 1f; // reduce timer
@@ -117,6 +128,7 @@ public class MapManager : MonoBehaviour
         _isFreeTime = false;
         _isWorkTime = true;
         _currentTime = _workTime; // work time reset
+        onWorkTimeUpdated?.Invoke(_currentTime / _workTime);
 
         StartCoroutine(SpawnCharacter()); // spawn custoemr groups
         StartCoroutine(UpdateTime()); // update time

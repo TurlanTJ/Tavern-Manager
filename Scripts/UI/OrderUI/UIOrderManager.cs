@@ -18,32 +18,37 @@ public class UIOrderManager : MonoBehaviour
     {
         orderManager = OrderManager.instance;
 
-        orderManager.onOrderListUpdated += InstantiateOrderSlot;
+        orderManager.onOrderPlaced += InstantiateOrderSlot;
+        orderManager.onOrderCompleted += ClearSlot;
     }
 
-    public void InstantiateOrderSlot(List<Order> activeOrders)  // Update active orders list
+    public void InstantiateOrderSlot(Order newOrder)  // Update active orders list
     {
-        ClearSlots(); // reset
         orderSlotsParent.GetComponent<GridLayoutGroup>().enabled = false;
 
-        foreach(Order o in activeOrders) // loop through the active orders list and spawn order slot for each of them
-        {
-            GameObject newSlot = Instantiate(orderSlotPrefab, orderSlotsParent.transform);
-            newSlot.GetComponent<UIOrder>().UpdateSlot(o);
-            spawnedSlots.Add(newSlot);
-        }
+        GameObject newSlot = Instantiate(orderSlotPrefab, orderSlotsParent.transform); // creating new slot
+        newSlot.GetComponent<UIOrder>().UpdateSlot(newOrder); // updating the created order slot information
+        spawnedSlots.Add(newSlot); // adding the created slot to the list to store
 
         orderSlotsParent.GetComponent<GridLayoutGroup>().enabled = true;
 
     }
 
-    public void ClearSlots() // clear slots
+    public void ClearSlot(Order order) // clear slots
     {
-        spawnedSlots.Clear();
-        while(orderSlotsParent.transform.childCount != 0)
+        int slotIdx = -1;
+        for(var i = 0; i < spawnedSlots.Count; i++) // iterate through the spawned slots
         {
-            DestroyImmediate(orderSlotsParent.transform.GetChild(0).gameObject, true);
+            if(spawnedSlots[i].GetComponent<UIOrder>().storedOrder == order) // if given order is found
+                slotIdx = i; // assign its index in the spawned slots list
+        }
+
+        if(slotIdx != -1)  // check if the slot index is NOT default value
+        {
+            orderSlotsParent.GetComponent<GridLayoutGroup>().enabled = false;
+            spawnedSlots.Remove(spawnedSlots[slotIdx]); // remove the slot from the list
+            DestroyImmediate(orderSlotsParent.transform.GetChild(slotIdx).gameObject, true); // destroy the order slot
+            orderSlotsParent.GetComponent<GridLayoutGroup>().enabled = true;
         }
     }
-
 }

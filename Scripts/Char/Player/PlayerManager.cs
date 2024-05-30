@@ -129,7 +129,7 @@ public class PlayerManager : MonoBehaviour
         // Player Item Pickup Logic
         if(pickUpItem == null) // if pick up item is null
         {
-            if(interactable.TryGetComponent(out Interactable interactableScript)) // try to get interactable
+            if(interactable != null && interactable.TryGetComponent(out Interactable interactableScript)) // try to get interactable
             {
                 if(carryingRightNow.Count <= 0)
                 {
@@ -160,8 +160,9 @@ public class PlayerManager : MonoBehaviour
         else
         {
             carryingRightNow.Add(pickUpItem); // else pick up
-            pickUpItem.transform.parent = carryPos.transform;
-            pickUpItem.transform.position = new Vector3();
+            pickUpItem.GetComponent<BoxCollider2D>().enabled = false; // disbale collider so that it doesnt interfere with raycast
+            pickUpItem.transform.parent = carryPos.transform; // set the parent object for the item
+            pickUpItem.transform.localPosition = new Vector3(); // reset the relative local position of the item
         }
     }
 
@@ -176,6 +177,9 @@ public class PlayerManager : MonoBehaviour
 
     public void DropCarryingItem() // drop the last item from carrying list;
     {
+        if(carryingRightNow.Count <= 0)
+            return;
+
         carryingRightNow[carryingRightNow.Count - 1].transform.parent = null;
         carryingRightNow[carryingRightNow.Count - 1].transform.position = gameObject.transform.position;
         carryingRightNow[carryingRightNow.Count - 1].GetComponent<BoxCollider2D>().enabled = true;

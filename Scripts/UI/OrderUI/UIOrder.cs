@@ -21,11 +21,16 @@ public class UIOrder : MonoBehaviour
     {
         if(storedOrder != null)
         {
+            int tableId = storedOrder.tableId;
             string meals = $"{storedOrder.orderedRecipes[0].result.itemName}";// first ordered meal
-            for(var i = 1; i < storedOrder.orderedRecipes.Count; i++)   // added the next ones
-                meals += $"\n{storedOrder.orderedRecipes[i].result.itemName}";
+            if(storedOrder.orderedRecipes.Count > 1)
+            {
+                for(var i = 1; i < storedOrder.orderedRecipes.Count; i++)   // added the next ones
+                    meals += $"\n{storedOrder.orderedRecipes[i].result.itemName}";            
+            }
+
             orderedMeals.GetComponent<TextMeshProUGUI>().text = meals;
-            table.GetComponent<TextMeshProUGUI>().text = $"{storedOrder.tableId++}"; // added table id to the order
+            table.GetComponent<TextMeshProUGUI>().text = $"{tableId++}"; // added table id to the order
         }
         else
         {   //reset

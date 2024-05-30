@@ -30,13 +30,10 @@ public class CookingManager : MonoBehaviour
     public delegate void OnRecipeSelected(RecipeSO recipe);
     public OnRecipeSelected onRecipeSelected;
 
-    void Update()
+    void Start()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            if(!allRecipesAdded)
-                UnlockAllRecipe();
-        }
+        if(!allRecipesAdded) // add all recipes in game, for the sake of testing
+            UnlockAllRecipe();
     }
 
     public void OpenCookingPanel() // open cooking panel
@@ -48,8 +45,6 @@ public class CookingManager : MonoBehaviour
         else
             playerManager.canMove = true;
 
-        if(!allRecipesAdded) // add all recipes in game, for the sake of testing
-            UnlockAllRecipe();
         onCookingPanelOpened?.Invoke();
     }
 
@@ -58,16 +53,16 @@ public class CookingManager : MonoBehaviour
         availableRecipes.Clear();
         foreach(RecipeSO r in allRecipes)
         {
-            availableRecipes.Add(r);
-            onNewRecipeUnlocked?.Invoke(r);
+            UnlockRecipe(r);
         }
         allRecipesAdded = true;
     }
 
     public void UnlockRecipe(RecipeSO newRecipe) // unlock specific recipe
     {
-        if(availableRecipes.Contains(newRecipe))
+        if(availableRecipes.Contains(newRecipe)) // if the given recipe is already unlocked do nothing
             return;
+
         availableRecipes.Add(newRecipe);
         onNewRecipeUnlocked?.Invoke(newRecipe);
     }
@@ -93,7 +88,7 @@ public class CookingManager : MonoBehaviour
 
     public void AddRequiredItems(RecipeSO recipe) // add required items
     {
-        for(var i = 0; i < recipe.ingredients.Count; i++) // loop through req ingridents and add them
+        for(var i = 0; i < recipe.ingredients.Count; i++) // loop through required recipe ingridents and add them to list
         {
             Item newItem = new Item(recipe.ingredients[i]);
             newItem.currentCount = recipe.ingredientsCount[i];

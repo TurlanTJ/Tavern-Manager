@@ -16,8 +16,10 @@ public class OrderManager : MonoBehaviour
     public List<Order> ordersList = new List<Order>();
     public List<Order> activeOrders = new List<Order>();
 
-    public delegate void OnOrderListUpdated(List<Order> newOrder);
-    public OnOrderListUpdated onOrderListUpdated;
+    public delegate void OnOrderPlaced(Order newOrder);
+    public OnOrderPlaced onOrderPlaced;
+    public delegate void OnOrderCompleted(Order order);
+    public OnOrderCompleted onOrderCompleted;
 
     private CookingManager cookingManager;
 
@@ -31,7 +33,7 @@ public class OrderManager : MonoBehaviour
     {
         ordersList.Add(newOrder); // add new order to all orders list
         activeOrders.Add(newOrder); // add it to active orders, too
-        onOrderListUpdated?.Invoke(activeOrders);   // call ui to update the active orders list
+        onOrderPlaced?.Invoke(newOrder);   // call ui to update the active orders list
     }
 
     public void CompleteOrder(Order order)
@@ -41,6 +43,6 @@ public class OrderManager : MonoBehaviour
         // complete the given order, adn remove it from active orders list, call ui to update the list
         order.orderComplete = true;
         activeOrders.Remove(order);
-        onOrderListUpdated?.Invoke(activeOrders);Debug.Log(1);
+        onOrderCompleted?.Invoke(order);
     }
 }
